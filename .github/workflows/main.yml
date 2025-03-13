@@ -23,16 +23,20 @@ jobs:
         echo "${{ secrets.YML }}" > ./application.yml
       shell: bash
       
+    # - name: Build with Gradle
+    #   uses: gradle/gradle-build-action@v2.4.2 
+    #   with:
+    #     arguments: build
     - name: Build with Gradle
-      uses: gradle/gradle-build-action@v2.4.2 
-      with:
-        arguments: build
-
-    - name: Naming jar file
-      run: mv ./build/libs/*.jar ./build/libs/app.jar
+      run: |
+        chmod +x gradlew
+        ./gradlew clean build -x test
 
     - name: Check jar file
       run: ls ./build/libs
+      
+    - name: Naming jar file
+      run: mv ./build/libs/*.jar ./build/libs/app.jar
 
     - uses: actions/upload-artifact@v4
       with:
