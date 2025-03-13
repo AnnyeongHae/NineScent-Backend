@@ -31,7 +31,7 @@ jobs:
       run: |
         cd ./src/main/resources
         touch ./application.yml
-        echo "${{ secrets.yml }}" > ./application.yml
+        echo "${{ secrets.YML }}" > ./application.yml
       shell: bash
 
   # 5. jar파일
