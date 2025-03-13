@@ -51,9 +51,11 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: app  
+        
     - name: Test SSH connection (telnet)
       run: |
        telnet ${{ secrets.EC2_HOST }} 22 || echo "Port 22 is not open!"
+       
     - name: Upload jar to EC2
       uses: appleboy/scp-action@v0.1.7
       with:
@@ -71,8 +73,15 @@ jobs:
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         script: |
           echo "Stop existing app"
-          sudo pkill -f 'app.jar' || echo 'No process to kill'
+          PID=$(pgrep -f 'app.jar')
+          if [ -n "$PID" ]; then
+            echo "Killing process $PID"
+            kill $PID
+            sleep 3
+          else
+            echo "No process to kill"
+          fi
+          
           echo "Run new app"
-          sudo nohup java -jar /home/ec2-user/app.jar > /dev/null 2>&1 &
+          nohup java -jar /home/ec2-user/app.jar > /dev/null 2>&1 &
           echo "Done!"
-
