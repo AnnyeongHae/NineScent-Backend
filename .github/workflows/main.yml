@@ -54,7 +54,7 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         source: "./build/libs/app.jar"
-        target: "/home/${{ secrets.EC2_USERNAME }}/"
+        target: "/home/ec2-user/"
 
     - name: Deploy on EC2
       uses: appleboy/ssh-action@v1.2.0
@@ -64,5 +64,5 @@ jobs:
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         script: |
           pkill -f 'java -jar' || echo 'No process to kill'
-          nohup java -jar /home/${{ secrets.EC2_USERNAME }}/app.jar > /dev/null 2>&1 &
+          nohup java -jar /home/ec2-user/app.jar > /dev/null 2>&1 &
 
