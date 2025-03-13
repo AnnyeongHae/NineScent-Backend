@@ -36,7 +36,7 @@ jobs:
       run: ls ./build/libs
       
     - name: Naming jar file
-      run: mv ./build/libs/*.jar ./build/libs/app.jar
+      run: mv ./build/libs/mall-0.0.1-SNAPSHOT.jar ./build/libs/app.jar
 
     - uses: actions/upload-artifact@v4
       with:
