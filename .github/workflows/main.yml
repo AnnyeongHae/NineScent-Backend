@@ -5,27 +5,22 @@ on:
     branches: [main]
 
 jobs:
-  # CI 
   ci:
     runs-on: ubuntu-latest
 
     steps:
-  # 1. vm에서 리파지토리를 내려받음
     - uses: actions/checkout@v3
-  # 2. vm에 jdk를 세팅함
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
-        java-version: '17' # 사용하는 버전으로 수전
-        distribution: 'temurin' # 배포판 선택
+        java-version: '17' 
+        distribution: 'temurin'
         
-  # 3. gradle 실행
     - name: Build with Gradle
-      uses: gradle/gradle-build-action@v2.4.2 # 버전 선택
+      uses: gradle/gradle-build-action@v2.4.2 
       with:
         arguments: build
 
-  # 4. application.yml 파일 생성
     - name: Make application-prod.yml
       run: |
         cd ./src/main/resources
@@ -33,7 +28,6 @@ jobs:
         echo "${{ secrets.YML }}" > ./application.yml
       shell: bash
 
-  # 5. jar파일
     - name: Naming jar file
       run: mv ./build/libs/*.jar ./build/libs/app.jar
 
@@ -45,12 +39,10 @@ jobs:
         name: app
         path: ./build/libs/app.jar
 
-  # CD
   cd:
     needs: ci
     runs-on: ubuntu-latest
     steps:
-  # 1. jar 파일 EC2로 업로드
     - name: Upload jar to EC2
       uses: appleboy/scp-action@v0.1.4
       with:
@@ -60,7 +52,6 @@ jobs:
         source: "./build/libs/app.jar"
         target: "/home/${{ secrets.EC2_USERNAME }}/app/"
 
-  # 2. EC2 접속 후 배포 스크립트 실행
     - name: Deploy on EC2
       uses: appleboy/ssh-action@v1.2.0
       with:
@@ -70,6 +61,4 @@ jobs:
         script: |
           pkill -f 'java -jar' || echo 'No process to kill'
           nohup java -jar /home/${{ secrets.EC2_USERNAME }}/app/app.jar > /dev/null 2>&1 &
-
-
 
