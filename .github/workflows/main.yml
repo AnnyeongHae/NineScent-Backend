@@ -72,16 +72,6 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         script: |
-          echo "Stop existing app"
-          PID=$(pgrep -f 'app.jar')
-          if [ -n "$PID" ]; then
-            echo "Killing process $PID"
-            kill $PID
-            sleep 3
-          else
-            echo "No process to kill"
-          fi
-          
           echo "Run new app"
           nohup java -jar /home/ec2-user/app.jar > /dev/null 2>&1 &
           echo "Done!"
