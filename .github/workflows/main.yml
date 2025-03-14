@@ -72,6 +72,9 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         script: |
+          echo "Stop existing app"
+          sudo pkill -f 'app.jar' || true
           echo "Run new app"
-          nohup java -jar /home/ec2-user/app.jar > /dev/null 2>&1 &
+          sudo nohup java -jar /home/ec2-user/app.jar > /dev/null 2>&1 &
           echo "Done!"
+
