@@ -67,6 +67,7 @@ jobs:
         target: "/home/ec2-user/"
 
     # 2. EC2 접속 후 배포 스크립트 실행
+    # 포트 기반 프로세스 종료 pkill -f 'app.jar'이 오류여서 
     - name: Deploy on EC2
       uses: appleboy/ssh-action@v1.2.0
       with:
@@ -75,8 +76,13 @@ jobs:
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         script: |
           echo "Stop existing app"
-          # sudo pkill -f 'app.jar' || true
+          JAVA_PID=$(sudo lsof -t -i:8080)
+          if [ ! -z "$JAVA_PID" ]; then
+            sudo kill $JAVA_PID
+            echo "Application running on port 8080 stopped"
+            sleep 5 # 프로세스가 완전히 종료될 때까지 대기
+          fi
+          
           echo "Run new app"
           sudo nohup java -jar /home/ec2-user/app.jar > /dev/null 2>&1 &
-          echo "Done!"
-
+          echo "Done!" 
