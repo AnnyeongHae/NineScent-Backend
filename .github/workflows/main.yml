@@ -9,13 +9,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # 1. vm에서 리파지토리를 내려받음
     - uses: actions/checkout@v3
+    # 2. vm에 jdk를 세팅함
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
         java-version: '17' 
         distribution: 'temurin'
 
+    # 3. application.yml 파일 생성
     - name: Make application-prod.yml
       run: |
         cd ./src/main/resources
@@ -23,15 +26,13 @@ jobs:
         echo "${{ secrets.YML }}" > ./application.yml
       shell: bash
       
-    # - name: Build with Gradle
-    #   uses: gradle/gradle-build-action@v2.4.2 
-    #   with:
-    #     arguments: build
+    # 4. gradle 실행
     - name: Build with Gradle
       run: |
         chmod +x gradlew
         ./gradlew clean build -x test
 
+    # 5. jar파일 확인 및 파일명 수정
     - name: Check jar file
       run: ls ./build/libs
       
@@ -55,7 +56,7 @@ jobs:
     - name: Test SSH connection (telnet)
       run: |
        telnet ${{ secrets.EC2_HOST }} 22 || echo "Port 22 is not open!"
-       
+    # 1. jar 파일 EC2로 업로드
     - name: Upload jar to EC2
       uses: appleboy/scp-action@v0.1.7
       with:
@@ -65,6 +66,7 @@ jobs:
         source: "app.jar"
         target: "/home/ec2-user/"
 
+    # 2. EC2 접속 후 배포 스크립트 실행
     - name: Deploy on EC2
       uses: appleboy/ssh-action@v1.2.0
       with:
@@ -73,7 +75,7 @@ jobs:
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         script: |
           echo "Stop existing app"
-          sudo pkill -f 'app.jar' || true
+          # sudo pkill -f 'app.jar' || true
           echo "Run new app"
           sudo nohup java -jar /home/ec2-user/app.jar > /dev/null 2>&1 &
           echo "Done!"
