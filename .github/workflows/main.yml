@@ -2,7 +2,7 @@ name: Deploy Ninescent First
 
 on:
   push:
-    branches: [main]
+    branches: [develop]
 
 jobs:
   ci:
